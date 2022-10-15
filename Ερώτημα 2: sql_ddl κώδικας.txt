@@ -1,0 +1,150 @@
+CREATE TABLE Εκδοτικός_Οίκος (
+  ID INTEGER  NOT NULL  ,
+  Όνομα VARCHAR(20)    ,
+  Διεύθυνση VARCHAR(30)    ,
+  URL VARCHAR(50)      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE Πελάτης (
+  ID INTEGER  NOT NULL  ,
+  Όνομα VARCHAR(10)    ,
+  Επώνυμο VARCHAR(20)    ,
+  Πατρώνυμο VARCHAR(10)    ,
+  email VARCHAR(20)    ,
+  Πόλη VARCHAR(10)    ,
+  Οδός VARCHAR(10)    ,
+  Αριθμός INTEGER    ,
+  ΤΚ INTEGER      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE Συγγραφέας (
+  ID INTEGER  NOT NULL  ,
+  email VARCHAR(20)    ,
+  Ονοματεπώνυμο VARCHAR(30)      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE Αποθήκη (
+  ID INTEGER  NOT NULL  ,
+  Τηλέφωνο_Επικοινωνίας VARCHAR(10)    ,
+  Πόλη VARCHAR(10)    ,
+  Οδός VARCHAR(10)    ,
+  Αριθμός INTEGER    ,
+  ΤΚ INTEGER      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE Τηλέφωνα_Εκδοτικού_Οίκου (
+  Εκδοτικός_Οίκος_ID INTEGER  NOT NULL  ,
+  Τηλέφωνο VARCHAR(10)  NOT NULL    ,
+PRIMARY KEY(Εκδοτικός_Οίκος_ID, Τηλέφωνο)  ,
+  FOREIGN KEY(Εκδοτικός_Οίκος_ID)
+    REFERENCES Εκδοτικός_Οίκος(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX Τηλέφωνα_Εκδοτικού_Οίκου_FKIndex1 ON Τηλέφωνα_Εκδοτικού_Οίκου (Εκδοτικός_Οίκος_ID);
+
+
+
+CREATE TABLE Καλάθι_Αγορών (
+  ID INTEGER  NOT NULL  ,
+  Πελάτης_ID INTEGER  NOT NULL  ,
+  Ημερομηνία_Αγοράς DATETIME      ,
+PRIMARY KEY(ID)  ,
+  FOREIGN KEY(Πελάτης_ID)
+    REFERENCES Πελάτης(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX Καλάθι_Αγορών_FKIndex1 ON Καλάθι_Αγορών (Πελάτης_ID);
+
+
+
+CREATE TABLE Τηλέφωνα_Πελάτη (
+  Πελάτης_ID INTEGER  NOT NULL  ,
+  Τηλέφωνο VARCHAR(10)  NOT NULL    ,
+PRIMARY KEY(Πελάτης_ID, Τηλέφωνο)  ,
+  FOREIGN KEY(Πελάτης_ID)
+    REFERENCES Πελάτης(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX Τηλέφωνα_Πελάτη_FKIndex1 ON Τηλέφωνα_Πελάτη (Πελάτης_ID);
+
+
+
+CREATE TABLE Βιβλίο (
+  ID INTEGER  NOT NULL  ,
+  Εκδοτικός_Οίκος_ID INTEGER  NOT NULL  ,
+  Αποθήκη_ID INTEGER  NOT NULL  ,
+  Τίτλος VARCHAR(20)    ,
+  Έτος_Έκδοσης INTEGER    ,
+  ISBN CHAR(13)    ,
+  Τιμή_Πώλησης FLOAT    ,
+  Ποσότητα INTEGER      ,
+PRIMARY KEY(ID)    ,
+  FOREIGN KEY(Αποθήκη_ID)
+    REFERENCES Αποθήκη(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(Εκδοτικός_Οίκος_ID)
+    REFERENCES Εκδοτικός_Οίκος(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX Βιβλίο_FKIndex1 ON Βιβλίο (Αποθήκη_ID);
+CREATE INDEX Βιβλίο_FKIndex2 ON Βιβλίο (Εκδοτικός_Οίκος_ID);
+
+
+
+CREATE TABLE Βρίσκεται_σε_καλάθι_αγορών (
+  Καλάθι_Αγορών_ID INTEGER  NOT NULL  ,
+  Βιβλίο_ID INTEGER  NOT NULL  ,
+  Τιμή FLOAT    ,
+  Ποσότητα INTEGER      ,
+PRIMARY KEY(Καλάθι_Αγορών_ID, Βιβλίο_ID)    ,
+  FOREIGN KEY(Καλάθι_Αγορών_ID)
+    REFERENCES Καλάθι_Αγορών(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(Βιβλίο_ID)
+    REFERENCES Βιβλίο(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX Καλάθι_Αγορών_has_Βιβλίο_FKIndex1 ON Βρίσκεται_σε_καλάθι_αγορών (Καλάθι_Αγορών_ID);
+CREATE INDEX Καλάθι_Αγορών_has_Βιβλίο_FKIndex2 ON Βρίσκεται_σε_καλάθι_αγορών (Βιβλίο_ID);
+
+
+
+CREATE TABLE Έχει_Συγγραφέα (
+  Συγγραφέας_ID INTEGER  NOT NULL  ,
+  Βιβλίο_ID INTEGER  NOT NULL    ,
+PRIMARY KEY(Συγγραφέας_ID, Βιβλίο_ID)    ,
+  FOREIGN KEY(Συγγραφέας_ID)
+    REFERENCES Συγγραφέας(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(Βιβλίο_ID)
+    REFERENCES Βιβλίο(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX Συγγραφέας_has_Βιβλίο_FKIndex1 ON Έχει_Συγγραφέα (Συγγραφέας_ID);
+CREATE INDEX Συγγραφέας_has_Βιβλίο_FKIndex2 ON Έχει_Συγγραφέα (Βιβλίο_ID);
+
+
+
